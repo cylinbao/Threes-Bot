@@ -72,25 +72,30 @@ void PlayNRounds(int n){
     Grid myGrid;
     for(int i = 0;i < n;i++){    
         isGameOver = false;
-        while(!isGameOver){
-            while((dir = getDirFromKeyboard()) == INVALID);
-            gotoXY(5,10);
-            std::cout<<dirToStr(dir);
-            myGame.printGrid(5,2);
-          
-            myGame.insertDirection(dir);
-            gotoXY(50,0);
-            std::cout<<myGame.getHint();
-            isGameOver = myGame.isGameOver(score);
-            myGame.printGrid(35,2);
-            
-       }
+				while(!isGameOver){
+					//while((dir = getDirFromKeyboard()) == INVALID);
+					while((dir =  getRandDir()) == INVALID);
+					gotoXY(5,10);
+					std::cout<<dirToStr(dir);
+					myGame.printGrid(5,2);
+
+					myGame.insertDirection(dir);
+					gotoXY(50,0);
+					std::cout<<myGame.getHint();
+					isGameOver = myGame.isGameOver(score);
+					myGame.printGrid(35,2);
+
+					myGame.getCurrentGrid(myGrid);
+					gotoXY(0,30);
+					for(int j=0; j<16; j+=4)
+						printf("%d %d %d %d\n", myGrid[j], myGrid[j+1], myGrid[j+2],
+						myGrid[j+3]);
+				}
         myGame.printGrid(35,2);
         if(i < n - 1)  myGame.reset();
         gotoXY(0,15); 
         printf("  Round:    %d      \n", i+1);
         printf("  Score:    %d      \n", score);
- 
     }
 }
 

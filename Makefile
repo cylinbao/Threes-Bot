@@ -11,6 +11,7 @@ all:
 
 run:
 	./${TARGET}
+	cat open_src_version.log
 
 clean:
 	rm -rf ${TARGET}
