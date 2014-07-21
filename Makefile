@@ -2,14 +2,12 @@ CC = g++
 
 LIB = -O3 -Wall
 
-SOURCE = Threes.cpp main.cpp
-
 TARGET = Threes
 
 all:
-	${CC} ${SOURCE} ${LIB} -o ${TARGET}
+	${CC} Threes.cpp main.cpp ${LIB} -o ${TARGET}
 
-run:
+run1:
 	./${TARGET}
 
 clean:
