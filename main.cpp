@@ -75,7 +75,10 @@ void PlayNRounds(int n){
         while(!isGameOver){
             //while((dir = getDirFromKeyboard()) == INVALID);
             //while((dir = getRandDir()) == INVALID);
-            while((dir = myGame.aiGreedyDir() == INVALID);
+							//dir = INVALID;
+            	//gotoXY(0,20);
+							//printf("dir = %d\n", dir);
+            while((dir = myGame.aiGreedyDir()) == INVALID) ;
             gotoXY(5,10);
             std::cout<<dirToStr(dir);
             myGame.printGrid(5,2);
@@ -100,8 +103,8 @@ void PlayNRounds(int n){
 int main(int argc, char* argv[]){
     // Note: API function calls performed by any 'Game' object effects the same set of static class members,
     // so even through the 2 following function calls use different 'Game' objects, the same game continues
-    PlayNRounds(10);
-   // PlayNRounds(50);
+    PlayNRounds(50);
+    PlayNRounds(50);
     return 0;
 }
 

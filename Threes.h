@@ -83,6 +83,7 @@ class Grid{
         int   getScore();
         bool  shift(dir_e dir);
         void  print(int xPos = 0, int yPos = 0);
+				int* getm_data();
 };
 
 class Game{
@@ -118,10 +119,9 @@ class Game{
         void  setGameOver();
         void  dumpLog(const char* fileName);
 
-	//aje
-	int getIndexOf(int tile,int start);	
+   	    //aje
+    	  int getIndexOf(int tile,int start);	
         dir_e checkPossDir(int iter);
-        dir_e aiGreedyDir();
     public:
         Game();
         ~Game();
@@ -133,14 +133,16 @@ class Game{
         bool  insertDirection(dir_e dir);
         bool  isGameOver(int& score);
         void  printGrid(int xPos, int yPos);
-
-	//aje
-	dir_e aiGreedyDir();
+	     //aje
+	     dir_e aiGreedyDir();
 };
 
 /*************************************************
                    Grid inline
 *************************************************/
+inline
+int* Grid::getm_data(){ return this->m_data; }
+
 // Grid()
 // Description: initialize members
 inline
@@ -441,88 +443,90 @@ void Game::printGrid(int xPos, int yPos){
 }
 
 //################ AJE #######################
+/*
 int Game::getIndexOf(int tile, int start){
     for(int it=start; it<GRID_SIZE; it++){
-        if(m_grid(it) == m_maxTile)
+        if(m_grid[it] == m_grid.getMaxTile())
             return it;
     }
 
     return -1;
 }
 dir_e Game::checkPossDir(int iter){
+int* m_data = m_grid.getm_data();
 dir_e dir = INVALID;
 if(iter >= 0 && iter <= 3){ //Upper side
     if(iter == 0){
-	if(canMerge(m_data[iter],m_data[iter+1]))
+	if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
 	    dir = RIGHT;
-	else if(canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
 	    dir = DOWN;
     }
     else if(iter == 3){
-	if(canMerge(m_data[iter],m_data[iter-1]))
+	if(m_grid.canMerge(m_data[iter],m_data[iter-1]))
 	    dir = LEFT;
-	else if(canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
 	    dir = DOWN;
     }
     else{
-	if(canMerge(m_data[iter], m_data[iter-1]))
+	if(m_grid.canMerge(m_data[iter], m_data[iter-1]))
 	    dir = LEFT;
-	else if(canMerge(m_data[iter],m_data[iter+1]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
 	    dir = RIGHT;
-	else if(canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
 	    dir = DOWN;
     }
 }
 
 else if(iter >= 12 && iter <= 15){ //Bottom side
     if(iter == 12){
-	if(canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
 	    dir = UP;
-	else if(canMerge(m_data[iter],m_data[iter+1]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
 	    dir = RIGHT;
     }
     else if(iter == 15){
-	if(canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
 	    dir = UP;
-	else if(canMerge(m_data[iter],m_data[iter-1]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter-1]))
 	    dir = LEFT;
     }
     else{
-	if(canMerge(m_data[iter], m_data[iter-1]))
+	if(m_grid.canMerge(m_data[iter], m_data[iter-1]))
 	    dir = LEFT;
-	else if(canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
 	    dir = UP;
-	else if(canMerge(m_data[iter],m_data[iter+1]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
 	    dir = RIGHT;
     }
 }
 
 else if(iter%GRID_LENGTH == 0){ //Left side
-    if(canMerge(m_data[iter], m_data[iter-GRID_LENGTH]))
+    if(m_grid.canMerge(m_data[iter], m_data[iter-GRID_LENGTH]))
 	dir = UP;
-    else if(canMerge(m_data[iter],m_data[iter+1]))
+    else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
 	dir = RIGHT;
-    else if(canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+    else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
 	dir = DOWN;
 }
 
 else if((iter+1)%GRID_LENGTH == 0){ //Right side
-    if(canMerge(m_data[iter], m_data[iter-GRID_LENGTH]))
+    if(m_grid.canMerge(m_data[iter], m_data[iter-GRID_LENGTH]))
 	dir = UP;
-    else if(canMerge(m_data[iter],m_data[iter-1]))
+    else if(m_grid.canMerge(m_data[iter],m_data[iter-1]))
 	dir = LEFT;
-    else if(canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+    else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
 	dir = DOWN;
 }
 
 else{	//center side
-	if(canMerge(m_data[iter], m_data[iter-1]))
+	if(m_grid.canMerge(m_data[iter], m_data[iter-1]))
 	    dir = LEFT;
-	else if(canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
 	    dir = UP;
-	else if(canMerge(m_data[iter],m_data[iter+1]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
 	    dir = RIGHT;
-	else if(canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
 	    dir = DOWN;
 }
 
@@ -533,7 +537,7 @@ dir_e Game::aiGreedyDir(){
     bool join_flag = false;
     int start = 0;
     dir_e dir = INVALID;
-    int my_max_tile = m_maxTile;
+    int my_max_tile = m_grid.getMaxTile();
 
     while(join_flag == false){
 	int iter = getIndexOf(my_max_tile,start);
@@ -558,7 +562,7 @@ dir_e Game::aiGreedyDir(){
     }
     return dir;
 }
-
+*/
 
 #endif
 

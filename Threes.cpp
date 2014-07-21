@@ -354,4 +354,146 @@ double cpuTime(){
 #endif
 }
 
+//################ AJE #######################
+int Game::getIndexOf(int tile, int start){
+    for(int it=start; it<GRID_SIZE; it++){
+        if(m_grid[it] == tile)
+            return it;
+    }
 
+    return -1;
+}
+dir_e Game::checkPossDir(int iter){
+int* m_data = m_grid.getm_data();
+dir_e dir = INVALID;
+if(iter >= 0 && iter <= 3){ //Upper side
+    if(iter == 0){
+	if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
+	    dir = RIGHT;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	    dir = DOWN;
+    }
+    else if(iter == 3){
+	if(m_grid.canMerge(m_data[iter],m_data[iter-1]))
+	    dir = LEFT;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	    dir = DOWN;
+    }
+    else{
+	if(m_grid.canMerge(m_data[iter], m_data[iter-1]))
+	    dir = LEFT;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
+	    dir = RIGHT;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	    dir = DOWN;
+    }
+}
+
+else if(iter >= 12 && iter <= 15){ //Bottom side
+    if(iter == 12){
+	if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	    dir = UP;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
+	    dir = RIGHT;
+    }
+    else if(iter == 15){
+	if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	    dir = UP;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter-1]))
+	    dir = LEFT;
+    }
+    else{
+	if(m_grid.canMerge(m_data[iter], m_data[iter-1]))
+	    dir = LEFT;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	    dir = UP;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
+	    dir = RIGHT;
+    }
+}
+
+else if(iter%GRID_LENGTH == 0){ //Left side
+    if(m_grid.canMerge(m_data[iter], m_data[iter-GRID_LENGTH]))
+	dir = UP;
+    else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
+	dir = RIGHT;
+    else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	dir = DOWN;
+}
+
+else if((iter+1)%GRID_LENGTH == 0){ //Right side
+    if(m_grid.canMerge(m_data[iter], m_data[iter-GRID_LENGTH]))
+	dir = UP;
+    else if(m_grid.canMerge(m_data[iter],m_data[iter-1]))
+	dir = LEFT;
+    else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	dir = DOWN;
+}
+
+else{	//center side
+	if(m_grid.canMerge(m_data[iter], m_data[iter-1]))
+	    dir = LEFT;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter-GRID_LENGTH]))
+	    dir = UP;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+1]))
+	    dir = RIGHT;
+	else if(m_grid.canMerge(m_data[iter],m_data[iter+GRID_LENGTH]))
+	    dir = DOWN;
+}
+
+return dir;
+}
+
+dir_e Game::aiGreedyDir(){
+	bool join_flag = false;
+	int start = 0;
+	dir_e dir = INVALID;
+	int my_max_tile = m_grid.getMaxTile();
+
+	while(join_flag == false){
+		int iter = getIndexOf(my_max_tile,start);
+
+		//std::cout << "my_max_tile = " << my_max_tile<< std::endl;
+		//std::cout << "iter = " << iter << std::endl;
+
+		//int temp;
+		//std::cin >> temp;
+
+		if(iter == -1){
+			//FIXME
+			//std::cout<<"Error tile not found"<<endl;
+			//return;
+			if(my_max_tile>3)
+				my_max_tile /= 2;
+			else 
+				my_max_tile--;
+      
+			if(my_max_tile == 0) {
+				int dir = rand()%4;
+
+				if(dir == 0)  return LEFT;
+				if(dir == 1)  return DOWN;
+				if(dir == 2)  return RIGHT;
+				if(dir == 3)  return UP;
+				return INVALID;
+			}
+
+			start = 0;
+			continue;
+		}
+
+		//std::cout << "before dir " << std::endl;
+
+		dir = checkPossDir(iter);
+
+		//std::cout << "dir = " << dir << std::endl;
+
+		if(dir == INVALID){
+			start = iter+1;
+		}
+		else{
+			join_flag = true;
+		}
+	}
+	return dir;
+}
