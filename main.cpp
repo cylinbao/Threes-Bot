@@ -71,7 +71,8 @@ void PlayNRounds(int n){
     for(int i = 0;i < n;i++){    
         isGameOver = false;
         while(!isGameOver){
-            while((dir = getDirFromKeyboard()) == INVALID);
+            //while((dir = getDirFromKeyboard()) == INVALID);
+            while((dir = getRandDir()) == INVALID);
             gotoXY(5,10);
             std::cout<<dirToStr(dir);
             myGame.printGrid(5,2);
