@@ -11,10 +11,25 @@
 #include <queue>
 #include <stack>
 
+typedef enum{
+	WHITE = 0,
+	GRAY,
+	BLACK
+} color;
+
 class tile{
 public:
-	tile(int arg1, int arg2) {value = arg1; index = arg2;}
+	tile(int arg1, int arg2) {
+		value = arg1; index = arg2; 
+		state = WHITE;
+		edge.push(LEFT);
+		edge.push(DOWN);
+		edge.push(RIGHT);
+		edge.push(UP);
+	}
 	int value, index;
+	color state;
+	queue<dir_e> edge;
 };
 
 int getch(void){
@@ -61,7 +76,63 @@ dir_e getRandDir(){
     return INVALID;
 }
 
-std::vector<dir_e> getSteps(Grid myGrid);
+bool findPath(tile* tile1, tile* tile2, 
+						  std::vector<dir_e> &steps, Grid &myGrid){
+	bool existPath(false);
+	std::stack<int> path;
+
+	//run dfs
+
+
+	return existPath;
+}
+
+struct myComparision{
+  bool operator() (const tile* lhs, const tile* rhs) {
+    return lhs->value < rhs->value;
+  }
+};
+
+std::vector<dir_e> getSteps(Game &myGame){
+	Grid myGrid;
+  std::vector<dir_e> steps;
+  std::priority_queue<tile*, std::vector<tile*>, myComparision> p_q;
+  tile *tile1, *tile2;
+	dir_e dir;
+  int i;
+	bool existPath;
+
+	myGame.getCurrentGrid(myGrid);
+
+  for(i=0; i < 16; i++){
+    tile1 = new tile (myGrid[i], i);
+    p_q.push(tile1);
+  }
+
+	tile1 = p_q.top();	
+	while((tile1->value) > 0){
+		p_q.pop();
+		tile2 = p_q.top();
+
+		if((tile1->value) == (tile2->value))
+			existPath = findPath(tile1, tile2, steps, myGrid);
+
+		if(existPath)
+			break;
+
+		tile1 = tile2;
+	}
+
+	if(!existPath){
+		while((dir = getRandDir()) == INVALID);
+		steps.push_back(dir);
+		gotoXY(0,15);
+		printf("Random direction\n");
+	}
+
+  return steps;
+}
+
 void PlayNRounds(int n){
 #ifdef _WIN32
     system("cls");
@@ -81,26 +152,31 @@ void PlayNRounds(int n){
     myGame.printGrid(35,2);
 
     if(myGame.isGameOver(score))  myGame.reset();
-    Grid myGrid;
     for(int i = 0;i < n;i++){    
         isGameOver = false;
         while(!isGameOver){
             //while((dir = getDirFromKeyboard()) == INVALID);
             //while((dir = getRandDir()) == INVALID);
-					steps = getSteps(myGrid);
-					for(int j=0; j < steps.size(); j++){
+					steps = getSteps(myGame);
+					// insert those steps
+					for(unsigned int j=0; j < steps.size(); j++){
 						dir = steps[j];
 						gotoXY(5,10);
 						std::cout<<dirToStr(dir);
 						myGame.printGrid(5,2);
 
+						// return false when fail to insert
 						myGame.insertDirection(dir);
+
 						gotoXY(50,0);
 						std::cout<<myGame.getHint();
 						isGameOver = myGame.isGameOver(score);
 						myGame.printGrid(35,2);
-						//int temp;
-						//std::cin >> temp;
+						if(isGameOver)
+							break;
+
+						int temp;
+						std::cin >> temp;
 					}
        }
         myGame.printGrid(35,2);
@@ -118,35 +194,4 @@ int main(int argc, char* argv[]){
     PlayNRounds(50);
     PlayNRounds(50);
     return 0;
-}
-
-struct myComparision{
-  bool operator() (const tile lhs, const tile rhs) {
-    return lhs.value < rhs.value;
-  }
-};
-
-std::vector<dir_e> getSteps(Grid myGrid){
-  std::vector<dir_e> steps;
-  std::priority_queue<tile, std::vector<tile>, myComparision> p_q;
-  tile *tempTile;
-  int i;
-
-  for(i=0; i < 16; i++){
-    tempTile = new tile (myGrid[i], i);
-    p_q.push(*tempTile);
-  }
-	/*
-  gotoXY(0,25);
-  for(i=0; i < 16; i++){
-    printf("value: %d, index: %d\n", p_q.top().value, p_q.top().index);
-    p_q.pop();
-  }
-	*/
-  steps.push_back(LEFT);
-  steps.push_back(DOWN);
-  steps.push_back(RIGHT);
-  steps.push_back(UP);
-
-  return steps;
 }
