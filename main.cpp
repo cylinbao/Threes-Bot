@@ -76,21 +76,26 @@ bool findPath(int source, int target, std::vector<dir_e> &steps, Grid &myGrid){
 	bool existPath;
 	std::stack<int> pathIdx;
 	Grid nowGrid, testGrid[4];
-	color tileSta[16] = {WHITE};
-	int i, nowIdx;
+	color tileSta[4][4];
+	int i, j, nowIdx, posX, posY;
 	bool canMove;
+
+	for(i=0; i<4; i++)
+		for(j=0; j<4; j++)
+			tileSta[i][j] = WHITE;
 
 	//run dfs
 	pathIdx.push(source);
-	tileSta[source] = GRAY;
+	tileSta[source%4][source/4] = GRAY;
 	existPath = false;
-	while(pathIdx.size() > 0){
+	while(!pathIdx.empty()){
 		nowIdx = pathIdx.top();
+		posY = nowIdx / 4; 
+		posX = nowIdx % 4;
 		if(nowIdx == target){
 			existPath = true;
 			break;
 		}
-		tileSta[nowIdx] = GRAY;
 
 		nowGrid = myGrid;
 		for(i=0; i<steps.size(); i++)
@@ -100,35 +105,40 @@ bool findPath(int source, int target, std::vector<dir_e> &steps, Grid &myGrid){
 			testGrid[i] = nowGrid;
 
 		canMove = false;
-		if((tileSta[nowIdx - 1] == WHITE) && (testGrid[1].shift(LEFT))){
+		if(((posX - 1) > -1) && (tileSta[posX - 1][posY] == WHITE) 
+			 && (testGrid[1].shift(LEFT))){
 			steps.push_back(LEFT);
 			pathIdx.push(nowIdx-1);
-			tileSta[nowIdx-1] = GRAY;
 			canMove = true;
+			tileSta[posX - 1][posY] = GRAY;
 		}
-		else if((tileSta[nowIdx + 4] == WHITE) && (testGrid[2].shift(DOWN))){
+		else if(((posY + 1) < 4) && (tileSta[posX][posY + 1] == WHITE) 
+						&& (testGrid[2].shift(DOWN))){
 			steps.push_back(DOWN);
 			pathIdx.push(nowIdx+4);
-			tileSta[nowIdx+4] = GRAY;
 			canMove = true;
+			tileSta[posX][posY + 1] = GRAY;
 		}
-		else if((tileSta[nowIdx + 1] == WHITE) && (testGrid[3].shift(RIGHT))){
+		else if(((posX + 1) < 4) && (tileSta[posX + 1][posY] == WHITE) 
+						&& (testGrid[3].shift(RIGHT))){
 			steps.push_back(RIGHT);
 			pathIdx.push(nowIdx+1);
-			tileSta[nowIdx+1] = GRAY;
 			canMove = true;
+			tileSta[posX + 1][posY] = GRAY;
 		}
-		else if((tileSta[nowIdx - 4] == WHITE) && (testGrid[4].shift(UP))){
+		else if(((posY - 1) > -1) && (tileSta[posX][posY - 1] == WHITE) 
+						&& (testGrid[4].shift(UP))){
 			steps.push_back(UP);
 			pathIdx.push(nowIdx-4);
-			tileSta[nowIdx-4] = GRAY;
 			canMove = true;
+			tileSta[posX][posY - 1] = GRAY;
 		}
 
 		if(!canMove){
-			tileSta[nowIdx] = BLACK;
+			tileSta[posX][posY] = BLACK;
 			pathIdx.pop();
-			steps.pop_back();
+			if(!steps.empty())
+				steps.pop_back();
 		}
 	}
 
@@ -136,7 +146,7 @@ bool findPath(int source, int target, std::vector<dir_e> &steps, Grid &myGrid){
 }
 
 struct myComparision{
-  bool operator() (const tile lhs, const tile rhs) {
+  bool operator() (const tile& lhs, const tile& rhs) {
     return lhs.value < rhs.value;
   }
 };
@@ -145,54 +155,40 @@ std::vector<dir_e> getSteps(Game &myGame){
 	Grid myGrid;
   std::vector<dir_e> steps;
   std::priority_queue<tile, std::vector<tile>, myComparision> p_q;
-	#ifdef debug1
-  std::priority_queue<tile, std::vector<tile>, myComparision> p_q2;
-	#endif
-  tile tile1, tile2, *p_tile;
 	dir_e dir;
-  int i;
+  int i, value1, index1, value2, index2;
 	bool existPath;
 
 	myGame.getCurrentGrid(myGrid);
 
   for(i=0; i < 16; i++){
-    p_tile = new tile (myGrid[i], i);
-    p_q.push(*p_tile);
+		tile tempTile;
+		tempTile.value = myGrid[i];
+		tempTile.index = i;
+    p_q.push(tempTile);
   }
-	#ifdef debug1
-	p_q2 = p_q;
-	gotoXY(0,16);
-	while(!p_q2.empty()){
-		printf("index: %d, value: %d\n", p_q2.top().index, p_q2.top().value);
-		p_q2.pop();
-	}
-	#endif
 
-	tile1 = p_q.top();	
+	value1 = p_q.top().value;	
+	index1 = p_q.top().index;	
 	existPath = false;
-	while((tile1.value) > 0){
+	gotoXY(0,40);
+	printf("p_q.size():%d\n ", p_q.size());
+	while((value1 > 0) && (!p_q.empty())){
 		p_q.pop();
-		tile2 = p_q.top();
 
-		if((tile1.value) == (tile2.value)){
-			#ifdef debug1
-			gotoXY(0,13);
-			std::cout << "Try to combine index: " << tile1.index << " and " 
-				<< tile2.index;
-			#endif
-			existPath = findPath(tile1.index, tile2.index, steps, myGrid);
-		}
+		value2 = p_q.top().value;	
+		index2 = p_q.top().index;	
+
+		if(value1 == value2)
+			existPath = findPath(index1, index2, steps, myGrid);
 
 		if(existPath)
 			break;
-
-		tile1 = tile2;
+		
+		value1 = value2;
+		index1 = index2;
 	}
 	if(!existPath){
-		#ifdef debug1
-		gotoXY(0,14);
-		std::cout << "No path, use random" << std::endl; 
-		#endif
 		while((dir = getRandDir()) == INVALID);
 		steps.clear();
 		steps.push_back(dir);
