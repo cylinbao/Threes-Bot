@@ -1,6 +1,6 @@
 CC = g++
 
-LIB = -O3 -Wall
+LIB = -O3 -Wall -g3
 
 SOURCE = Threes.cpp main.cpp
 
